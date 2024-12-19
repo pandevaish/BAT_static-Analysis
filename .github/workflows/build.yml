@@ -31,7 +31,7 @@ jobs:
       # Run tests and generate coverage report
       - name: Run tests with coverage
         run: |
-          pytest --cov="stm_display3 1.py" --cov-report=xml
+          pytest --cov=main --cov-report=xml
 
       # SonarQube analysis
       - name: SonarQube Scan
