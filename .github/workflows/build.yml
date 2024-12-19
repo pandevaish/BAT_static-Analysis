@@ -25,7 +25,7 @@ jobs:
       - name: Download SonarQube Report
         run: |
           curl -u ${{ secrets.SONAR_TOKEN }}: \
-            "http://63.176.243.51:9000/api/metrics/search
+            "http://63.176.243.51:9000/api/metrics/search" \
             -o sonar_report.json
 
       - name: Upload SonarQube Report as Artifact
