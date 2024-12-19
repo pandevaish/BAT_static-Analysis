@@ -33,6 +33,13 @@ jobs:
         with:
           name: sonar-report
           path: sonar_report.json
+
+      - name: Upload SonarQube Metrics as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: sonar-report
+          path: sonar_report.json
+
       
       # Optional: Fail the workflow if the Quality Gate is red
       # - uses: sonarsource/sonarqube-quality-gate-action@master
