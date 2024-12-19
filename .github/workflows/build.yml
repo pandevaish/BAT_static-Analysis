@@ -1,4 +1,4 @@
-name: Build
+name: Build and Analyze with Test Coverage
 
 on:
   push:
@@ -7,37 +7,41 @@ on:
 
 jobs:
   build:
-    name: Build and analyze
+    name: Build, Analyze, and Run Tests
     runs-on: ubuntu-latest
 
     steps:
-      # Check out the repository
+      # Checkout code
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
-      # Set up Python environment
+      # Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: "3.10"  # Specify Python version here
 
-      # Install dependencies
+      # Install dependencies (including pytest, coverage, and SonarQube Scanner)
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install pytest-cov
+          pip install --upgrade pip
+          pip install pytest pytest-cov
+          pip install sonarqube-scanner  # Ensure sonar-python or related package is installed
 
       # Run tests and generate coverage report
-      - name: Run tests with coverage
+      - name: Run tests and generate coverage report
         run: |
           pytest --cov=main --cov-report=xml
 
-      # SonarQube analysis
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@v3
+      # SonarQube Scan
+      - uses: sonarsource/sonarqube-scan-action@v3
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        with:
-          args: -Dsonar.python.coverage.reportPaths=coverage.xml
+      
+      # Optional: Fail the workflow if the Quality Gate is red
+      # - uses: sonarsource/sonarqube-quality-gate-action@master
+      #   timeout-minutes: 5
+      #   env:
+      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
