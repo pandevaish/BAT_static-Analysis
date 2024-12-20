@@ -18,8 +18,6 @@ def get_com_port():
     print("Available COM ports:")
     for idx, port in enumerate(available_ports, start=1):
         print(f"{idx}: {port}")
-
-    response = request.get("xyz.com", auth={USERNAME, PASS})
     
     try:
         choice = int(input("Select the COM port number (e.g., 1 for the first port): "))
