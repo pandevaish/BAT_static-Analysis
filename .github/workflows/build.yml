@@ -38,7 +38,7 @@ jobs:
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
       with:
         args: >
-          -Dsonar.projectKey=my_project_key
+          -Dsonar.projectKey=BAT_static_analysis
           -Dsonar.python.coverage.reportPaths=coverage.xml
           -Dsonar.python.xunit.reportPaths=report.xml
 
