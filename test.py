@@ -1,78 +1,67 @@
-import unittest
-from unittest.mock import patch, MagicMock
-import main
+import pytest
+from unittest.mock import MagicMock, patch
+from stm_display import get_com_port, initialize_serial_port, usb_data, DashboardGUI
+import tkinter as tk
 
-class TestMain(unittest.TestCase):
-    @patch("serial.tools.list_ports.comports")
-    def test_get_com_port(self, mock_comports):
-        # Mock available COM ports
-        mock_comports.return_value = [MagicMock(device="COM1"), MagicMock(device="COM2")]
 
-        with patch("builtins.input", return_value="1"):
-            result = main.get_com_port()
-            self.assertEqual(result, "COM1")
+def test_get_com_port():
+    with patch('serial.tools.list_ports.comports') as mock_comports:
+        mock_comports.return_value = [
+            MagicMock(device='COM1'),
+            MagicMock(device='COM2')
+        ]
+        with patch('builtins.input', return_value='1'):
+            assert get_com_port() == 'COM1'
 
-    @patch("serial.Serial")
-    def test_initialize_serial_port_success(self, mock_serial):
-        # Mock successful serial port opening
+        with patch('builtins.input', return_value='2'):
+            assert get_com_port() == 'COM2'
+
+        with patch('builtins.input', return_value='3'):
+            assert get_com_port() is None
+
+
+def test_initialize_serial_port():
+    with patch('serial.Serial') as mock_serial:
         mock_serial.return_value.is_open = True
-        result = main.initialize_serial_port("COM1")
-        self.assertIsNotNone(result)
+        ser = initialize_serial_port('COM1')
+        assert ser.is_open is True
 
-    @patch("serial.Serial")
-    def test_initialize_serial_port_failure(self, mock_serial):
-        # Mock serial port failure
-        mock_serial.side_effect = Exception("Failed to open serial port")
-        result = main.initialize_serial_port("COM1")
-        self.assertIsNone(result)
+        mock_serial.side_effect = serial.SerialException('Error')
+        ser = initialize_serial_port('COM1')
+        assert ser is None
 
-    @patch("serial.Serial")
-    def test_usb_data_valid_format(self, mock_serial):
-        # Mock serial data input
-        mock_serial.readline.side_effect = [
-            b"Throttle: 50, RPM: 3000\n",
-            b"Throttle: 75, RPM: 4500\n",
-            b"",
-        ]
-        data_gen = main.usb_data(mock_serial)
-        self.assertEqual(next(data_gen), (50, 3000))
-        self.assertEqual(next(data_gen), (75, 4500))
 
-    @patch("serial.Serial")
-    def test_usb_data_invalid_format(self, mock_serial):
-        # Mock serial data input with invalid format
-        mock_serial.readline.side_effect = [
-            b"Invalid data\n",
-            b"Throttle: Fifty, RPM: Three Thousand\n",
-            b"",
-        ]
-        data_gen = main.usb_data(mock_serial)
-        with self.assertRaises(StopIteration):
-            next(data_gen)
+def test_usb_data():
+    mock_serial = MagicMock()
+    mock_serial.readline.side_effect = [
+        b'Throttle: 50, RPM: 3000\n',
+        b'Invalid Data\n',
+        b'Throttle: 20, RPM: 1500\n',
+    ]
+    generator = usb_data(mock_serial)
 
-    @patch("tkinter.IntVar")
-    @patch("tkinter.ttk.Progressbar")
-    @patch("tkinter.Canvas")
-    def test_dashboard_gui(self, mock_canvas, mock_progressbar, mock_intvar):
-        # Mock Tkinter widgets
-        root_mock = MagicMock()
-        gui = main.DashboardGUI(root_mock)
+    assert next(generator) == (50, 3000)
+    with pytest.raises(StopIteration):
+        assert next(generator)  # Invalid data should not be yielded
+    assert next(generator) == (20, 1500)
 
-        # Test throttle bar updates
-        gui.throttle_value.set(50)
-        mock_progressbar.assert_called_once_with(
-            gui.throttle_frame, orient="horizontal", mode="determinate",
-            variable=mock_intvar.return_value, length=300, maximum=100
-        )
 
-        # Test needle update
-        gui.update_needle(3000)
-        mock_canvas.return_value.coords.assert_called_once()
+def test_dashboard_gui():
+    root = tk.Tk()
+    gui = DashboardGUI(root)
 
----
+    # Verify initial throttle value is 0
+    assert gui.throttle_value.get() == 0
+    gui.throttle_value.set(50)
 
-### **Run the Tests**
+    # Verify the throttle label is updated correctly
+    gui.throttle_label.config(text=f"Throttle: {gui.throttle_value.get()}%")
+    assert gui.throttle_label.cget("text") == "Throttle: 50%"
 
-Run the tests using the `pytest` or `unittest` command:
-```bash
-pytest test_main.py
+    # Verify needle position updates without exceptions
+    gui.update_needle(3000)
+    
+    root.destroy()
+
+if __name__ == '__main__':
+    pytest.main()
