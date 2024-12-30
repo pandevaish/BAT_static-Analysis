@@ -30,6 +30,7 @@ jobs:
       # Run tests and generate coverage report
       - name: Run tests with coverage
         run: |
+          cd .
           pytest --cov=stm_display --cov-report=xml
 
       # SonarQube Scan
