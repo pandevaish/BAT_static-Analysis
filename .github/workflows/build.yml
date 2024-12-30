@@ -31,16 +31,26 @@ jobs:
       run: |
         pytest --junitxml=report.xml --cov=. --cov-report xml:coverage.xml
 
-    - name: Set up Java 17
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-
-    - name: SonarQube Scanner
+    - name: SonarQube Scan
+      uses: sonarsource/sonarqube-scan-action@v3
       env:
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+    - name: Download SonarQube Report
       run: |
-        curl -sSLo sonar-scanner-cli.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip
-        unzip sonar-scanner-cli.zip
-        ./sonar-scanner-4.8.0.2856-linux/bin/sonar-scanner
+        curl -u ${{ secrets.SONAR_TOKEN }}: \
+          "http://63.176.243.51:9000/api/metrics/search" \
+          -o sonar_report.json
+
+    - name: Upload SonarQube Report as Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: sonar-report
+        path: sonar_report.json
+
+    - name: Upload SonarQube Metrics as Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: sonar-report
+        path: sonar_report.json
