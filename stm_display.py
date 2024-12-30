@@ -46,37 +46,7 @@ class DashboardGUI:
 
     def draw_dial(self):
         # Draw a circular dial
-        self.dial_canvas.create_oval(30, 30, 220, 220, outline="black", fill="#ccc", width=4)
- 
-        # Draw static labels for 0, 50, and 100 marks
-        self.dial_canvas.create_text(190, 125, text="6000", font=("Arial", 8, "bold"))
-        self.dial_canvas.create_text(195, 100, text="5400", font=("Arial", 6, "bold"))
-        self.dial_canvas.create_text(180, 80, text="4800", font=("Arial", 6, "bold"))
-        self.dial_canvas.create_text(165, 65, text="4200", font=("Arial", 6, "bold"))
-        self.dial_canvas.create_text(147.5, 55, text="3600", font=("Arial", 6, "bold"))
-        self.dial_canvas.create_text(125, 55, text="3000", font=("Arial", 8, "bold"))
-        self.dial_canvas.create_text(102.5, 55, text="2400", font=("Arial", 6, "bold"))
-        self.dial_canvas.create_text(85, 65, text="1800", font=("Arial", 6, "bold"))
-        self.dial_canvas.create_text(70, 80, text="1200", font=("Arial", 6, "bold"))
-        self.dial_canvas.create_text(55, 100, text="600", font=("Arial", 6, "bold"))
-        self.dial_canvas.create_text(50, 125, text="0", font=("Arial", 8, "bold"))
- 
-        self.dial_canvas.create_text(125, 160, text="RPM", font=("Arial", 12, "bold"))
- 
-        # Add intermediate markers
-        for i in range(0, 110, 10):
-            angle = math.radians(180 - (i / 100) * 180)
-            x1 = 125 + 80 * math.cos(angle)
-            y1 = 125 - 80 * math.sin(angle)
-            x2 = 125 + 90 * math.cos(angle)
-            y2 = 125 - 90 * math.sin(angle)
-            self.dial_canvas.create_line(x1, y1, x2, y2, width=2)
- 
-        # Draw the center circle (for aesthetic purposes)
-        self.dial_canvas.create_oval(110, 110, 140, 140, outline="black", fill="gray")
- 
-        # Initial needle line for the dial
-        self.needle = self.dial_canvas.create_line(125, 125, 125, 55, fill="red", width=4)
+        print()
  
     def update_needle(self, speed):
         # Calculate needle angle based on speed (assuming 0 to 6000 scale)
