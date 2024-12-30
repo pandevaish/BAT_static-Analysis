@@ -16,16 +16,35 @@ jobs:
         with:
           fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
 
+      # Set up Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          pip install pytest pytest-cov coverage
+
+      # Run tests and generate coverage report
+      - name: Run tests with coverage
+        run: |
+          pytest --cov=your_module_name --cov-report=xml
+
       # SonarQube Scan
       - uses: sonarsource/sonarqube-scan-action@v3
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          sonar-scanner-options: |
+            -Dsonar.python.coverage.reportPaths=coverage.xml
 
       - name: Download SonarQube Report
         run: |
           curl -u ${{ secrets.SONAR_TOKEN }}: \
-            "http://63.176.243.51:9000/api/metrics/search" \
+            "${{ secrets.SONAR_HOST_URL }}/api/metrics/search" \
             -o sonar_report.json
 
       - name: Upload SonarQube Report as Artifact
@@ -34,13 +53,6 @@ jobs:
           name: sonar-report
           path: sonar_report.json
 
-      - name: Upload SonarQube Metrics as Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: sonar-report
-          path: sonar_report.json
-
-      
       # Optional: Fail the workflow if the Quality Gate is red
       # - uses: sonarsource/sonarqube-quality-gate-action@master
       #   timeout-minutes: 5
