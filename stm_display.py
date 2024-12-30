@@ -44,7 +44,7 @@ def usb_data(ser):
  
 class DashboardGUI:
 
-     def draw_dial(self):
+    def draw_dial(self):
         # Draw a circular dial
         self.dial_canvas.create_oval(30, 30, 220, 220, outline="black", fill="#ccc", width=4)
  
