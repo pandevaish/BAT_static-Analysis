@@ -31,11 +31,18 @@ jobs:
       run: |
         pytest --junitxml=report.xml --cov=. --cov-report xml:coverage.xml
 
-    - name: SonarQube Scan
-      uses: sonarsource/sonarqube-scan-action@v3
+    - name: SonarQube Scanner
       env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        curl -sSLo sonar-scanner-cli.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-linux.zip
+        unzip sonar-scanner-cli.zip
+        ./sonar-scanner-4.8.0.2856-linux/bin/sonar-scanner \
+          -Dsonar.projectKey=my_project_key \
+          -Dsonar.python.coverage.reportPaths=coverage.xml \
+          -Dsonar.host.url=$SONAR_HOST_URL \
+          -Dsonar.login=$SONAR_TOKEN
 
     - name: Download SonarQube Report
       run: |
@@ -54,4 +61,3 @@ jobs:
       with:
         name: coverage-report
         path: coverage.xml
-
