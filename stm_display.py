@@ -61,57 +61,57 @@ def usb_data(ser):
             print(f"Data parsing error: {e}")
  
  
-class DashboardGUI:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("USB Payload Parser GUI")
-        self.root.geometry("400x400")  # Set a specific size (width x height)
+# class DashboardGUI:
+#     def __init__(self, root):
+#         self.root = root
+#         self.root.title("USB Payload Parser GUI")
+#         self.root.geometry("400x400")  # Set a specific size (width x height)
  
-        # Frame for Throttle View
-        self.throttle_frame = ttk.LabelFrame(root, text="Throttle View", padding=(20, 20))
-        self.throttle_frame.grid(row=0, column=0, padx=20, pady=20)
+#         # Frame for Throttle View
+#         self.throttle_frame = ttk.LabelFrame(root, text="Throttle View", padding=(20, 20))
+#         self.throttle_frame.grid(row=0, column=0, padx=20, pady=20)
  
-        # Label for "Min"
-        self.throttle_min_label = tk.Label(
-            self.throttle_frame, text="Min", font=("Arial", 10), anchor="e"
-        )
-        self.throttle_min_label.pack(side="left", padx=(5, 0))
+#         # Label for "Min"
+#         self.throttle_min_label = tk.Label(
+#             self.throttle_frame, text="Min", font=("Arial", 10), anchor="e"
+#         )
+#         self.throttle_min_label.pack(side="left", padx=(5, 0))
  
-        self.throttle_value = tk.IntVar()
-        self.throttle_bar = ttk.Progressbar(
-            self.throttle_frame, orient="horizontal",
-            mode="determinate", variable=self.throttle_value,
-            length=300, maximum=100
-        )
-        self.throttle_bar.pack(padx=20, pady=10)
+#         self.throttle_value = tk.IntVar()
+#         self.throttle_bar = ttk.Progressbar(
+#             self.throttle_frame, orient="horizontal",
+#             mode="determinate", variable=self.throttle_value,
+#             length=300, maximum=100
+#         )
+#         self.throttle_bar.pack(padx=20, pady=10)
  
-        self.throttle_bar.pack(side="left", padx=10, pady=10)
+#         self.throttle_bar.pack(side="left", padx=10, pady=10)
  
-        # Label for "Max"
-        self.throttle_max_label = tk.Label(
-            self.throttle_frame, text="Max", font=("Arial", 10), anchor="w"
-        )
-        self.throttle_max_label.pack(side="left", padx=(0, 5))
+#         # Label for "Max"
+#         self.throttle_max_label = tk.Label(
+#             self.throttle_frame, text="Max", font=("Arial", 10), anchor="w"
+#         )
+#         self.throttle_max_label.pack(side="left", padx=(0, 5))
  
-        self.throttle_label = tk.Label(
-            self.throttle_frame, text="Throttle: 0%", font=("Arial", 12)
-        )
-        self.throttle_label.pack(pady=10)
+#         self.throttle_label = tk.Label(
+#             self.throttle_frame, text="Throttle: 0%", font=("Arial", 12)
+#         )
+#         self.throttle_label.pack(pady=10)
  
-        # Frame for Motor View
-        self.motor_frame = ttk.LabelFrame(root, text="Motor View", padding=(20, 20))
-        self.motor_frame.grid(row=1, column=0, padx=20, pady=20)
+#         # Frame for Motor View
+#         self.motor_frame = ttk.LabelFrame(root, text="Motor View", padding=(20, 20))
+#         self.motor_frame.grid(row=1, column=0, padx=20, pady=20)
  
-        # Create a Canvas for the motor view dial
-        self.dial_canvas = tk.Canvas(self.motor_frame, width=250, height=250, bg="white")
-        self.dial_canvas.pack()
+#         # Create a Canvas for the motor view dial
+#         self.dial_canvas = tk.Canvas(self.motor_frame, width=250, height=250, bg="white")
+#         self.dial_canvas.pack()
  
-        # Draw the dial (circle and labels)
-        self.draw_dial()
+#         # Draw the dial (circle and labels)
+#         self.draw_dial()
  
-        # Start a thread to update the values
-        self.update_thread = threading.Thread(target=self.update_values, daemon=True)
-        self.update_thread.start()
+#         # Start a thread to update the values
+#         self.update_thread = threading.Thread(target=self.update_values, daemon=True)
+#         self.update_thread.start()
  
     def draw_dial(self):
         # Draw a circular dial
@@ -170,16 +170,16 @@ class DashboardGUI:
             print(f"Error in update thread: {e}")
  
  
-if __name__ == "__main__":
-    selected_port = get_com_port()
-    if not selected_port:
-        print("No valid COM port selected. Exiting.")
-    else:
-        ser = initialize_serial_port(selected_port)
-        if ser:
-            root = tk.Tk()
-            gui = DashboardGUI(root)
-            root.mainloop()
-        else:
-            print("Could not start the GUI due to serial port issues.")
+# if __name__ == "__main__":
+#     selected_port = get_com_port()
+#     if not selected_port:
+#         print("No valid COM port selected. Exiting.")
+#     else:
+#         ser = initialize_serial_port(selected_port)
+#         if ser:
+#             root = tk.Tk()
+#             gui = DashboardGUI(root)
+#             root.mainloop()
+#         else:
+#             print("Could not start the GUI due to serial port issues.")
  
