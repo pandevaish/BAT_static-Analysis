@@ -49,8 +49,9 @@ jobs:
         name: sonar-report
         path: sonar_report.json
 
-    - name: Upload SonarQube Metrics as Artifact
+    - name: Upload Coverage Report
       uses: actions/upload-artifact@v3
       with:
-        name: sonar-report
-        path: sonar_report.json
+        name: coverage-report
+        path: coverage.xml
+
