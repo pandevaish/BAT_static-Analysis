@@ -4,8 +4,68 @@ from stm_display import get_com_port, initialize_serial_port, usb_data, Dashboar
 import tkinter as tk
 import serial
 
-def test_get_com_port():
-    assert get_com_port() == 'COM6'
+def test_get_com_port_no_ports_available(capfd):
+    # Mock list_ports.comports() to return an empty list, simulating no COM ports available
+    with patch('serial.tools.list_ports.comports', return_value=[]):
+        result = get_com_port()
+
+    # Capture the printed output
+    captured = capfd.readouterr()
+
+    # Check the output and the result
+    assert result is None
+    assert "No COM ports available. Please connect a device and try again." in captured.out
+
+
+def test_get_com_port_with_available_ports_valid_choice(capfd):
+    # Mock list_ports.comports() to return a list with 2 COM ports
+    mock_ports = [MagicMock(device='COM1'), MagicMock(device='COM2')]
+    with patch('serial.tools.list_ports.comports', return_value=mock_ports):
+        # Mock input() to simulate the user selecting the first COM port (1)
+        with patch('builtins.input', return_value='1'):
+            result = get_com_port()
+
+    # Capture the printed output
+    captured = capfd.readouterr()
+
+    # Check the result and the printed output
+    assert result == 'COM1'
+    assert "Available COM ports:" in captured.out
+    assert "1: COM1" in captured.out
+    assert "2: COM2" in captured.out
+
+
+def test_get_com_port_with_available_ports_invalid_choice(capfd):
+    # Mock list_ports.comports() to return a list with 2 COM ports
+    mock_ports = [MagicMock(device='COM1'), MagicMock(device='COM2')]
+    with patch('serial.tools.list_ports.comports', return_value=mock_ports):
+        # Mock input() to simulate the user selecting an invalid choice (e.g., 3, which is out of range)
+        with patch('builtins.input', return_value='3'):
+            result = get_com_port()
+
+    # Capture the printed output
+    captured = capfd.readouterr()
+
+    # Check the result and the printed output
+    assert result is None
+    assert "Invalid selection. Exiting." in captured.out
+
+
+def test_get_com_port_with_invalid_input(capfd):
+    # Mock list_ports.comports() to return a list with 2 COM ports
+    mock_ports = [MagicMock(device='COM1'), MagicMock(device='COM2')]
+    with patch('serial.tools.list_ports.comports', return_value=mock_ports):
+        # Mock input() to simulate the user entering an invalid non-integer value (e.g., 'abc')
+        with patch('builtins.input', return_value='abc'):
+            result = get_com_port()
+
+    # Capture the printed output
+    captured = capfd.readouterr()
+
+    # Check the result and the printed output
+    assert result is None
+    assert "Invalid selection. Exiting." in captured.out
+
 
 def test_initialize_serial_port():
     with patch('serial.Serial') as mock_serial:
