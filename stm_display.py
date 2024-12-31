@@ -8,7 +8,6 @@ import serial.tools.list_ports
 
 def get_com_port():
     """Prompt the user to enter a valid COM port."""
-    available_ports = [port.device for port in serial.tools.list_ports.comports()]
     return "COM6"
 
 
