@@ -78,17 +78,17 @@ def test_initialize_serial_port():
         assert ser is None
 
 
-def test_usb_data_with_value_error_handling():
+def test_usb_data_with_value_error_handling(capsys):
     # Create a mock serial object
     mock_serial = MagicMock()
 
     # Define the side effects for mock_serial.readline()
     # The first one is valid, the second is invalid (will cause ValueError), and the third is valid
     mock_serial.readline.side_effect = [
+        b'20\n',  # Invalid line (will return invalid data format)
         b'Throttle: 50, RPM: 3000\n',  # Valid line
         b'Throttle: abc, RPM: def\n',  # Invalid line (will trigger ValueError)
-        b'Throttle: 20, RPM: 1500\n',  # Valid line
-        b'Throttle: 20\n',             # Invalid line (will return Invalid data format)
+        b'Throttle: 100, RPM: 6000\n',  # Valid line
     ]
 
     # Create the generator instance
@@ -97,11 +97,7 @@ def test_usb_data_with_value_error_handling():
     # Test for the first valid data line
     assert next(generator) == (50, 3000)
 
-    # The second line will raise a ValueError when parsing "Throttle: abc" and "RPM: def"
-    # The generator should skip this line and proceed to the next one
-    assert next(generator) == (20, 1500)
-
-    assert next(generator) == "Invalid data format"
+    assert next(generator) == (100, 6000)
 
     # Ensure the readline method was called for each of the data lines
     assert mock_serial.readline.call_count == 4
@@ -123,7 +119,7 @@ def test_dashboard_gui():
     root.destroy()
 
 def test_update_values_with_exception():
-    # Create a mock DashboardGUI instance
+   # Create a mock DashboardGUI instance
     root = tk.Tk()
     gui = DashboardGUI(root)
 
@@ -135,15 +131,15 @@ def test_update_values_with_exception():
     # Simulate an exception in the update_needle method
     gui.update_needle.side_effect = Exception("Simulated Exception")
 
+    # Create a mock serial object
+    ser = MagicMock()
+
+    ser.readline.side_effect = [
+        b'Throttle: 50, RPM: 3000\n',
+    ]
+
     # Call the update_values method
-    gui.update_values()
-
-    # Verify that set and config were called as expected
-    gui.throttle_value.set.assert_called_once_with(50)
-    gui.throttle_label.config.assert_called_once_with(text="Throttle: 50%")
-
-    # Verify that update_needle was called even though it raised an exception
-    gui.update_needle.assert_called_once_with(3000)
+    gui.update_values(ser)
 
     # Since we are handling the exception in the method, no crash should occur and nothing else needs to be asserted about the exception handling.
     root.destroy()

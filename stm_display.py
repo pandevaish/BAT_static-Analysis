@@ -5,7 +5,6 @@ import math
 import serial
 import serial.tools.list_ports
 
-
 def get_com_port():
     """Prompt the user to enter a valid COM port."""
     available_ports = [port.device for port in serial.tools.list_ports.comports()]
@@ -26,6 +25,7 @@ def get_com_port():
 
     print("Invalid selection. Exiting.")
     return None
+
 
 def initialize_serial_port(port):
     """Initialize and return the serial port."""
@@ -54,10 +54,10 @@ def usb_data(ser):
                 yield throttle, motor_speed
             else:
                 print("Invalid data format:", data_line)
-                yield "Invalid data format"
 
         except ValueError as e:
             print(f"Data parsing error: {e}")
+
 
 class DashboardGUI:
     def __init__(self, root):
@@ -155,17 +155,14 @@ class DashboardGUI:
         # Update needle position
         self.dial_canvas.coords(self.needle, 125, 125, x_end, y_end)
 
-    def update_values(self):
+    def update_values(self, ser):
         try:
-            throttle = 50
-            motor_speed = 3000
-            # Update the throttle progress bar
-            self.throttle_value.set(throttle)
-            # Update the throttle label dynamically
-            self.throttle_label.config(text=f"Throttle: {throttle}%")
-            # Update the needle based on motor speed
-            self.update_needle(motor_speed)
+            for throttle, motor_speed in usb_data(ser):
+                # Update the throttle progress bar
+                self.throttle_value.set(throttle)
+                # Update the throttle label dynamically
+                self.throttle_label.config(text=f"Throttle: {throttle}%")
+                # Update the needle based on motor speed
+                self.update_needle(motor_speed)
         except Exception as e:
             print(f"Error in update thread: {e}")
-
-
